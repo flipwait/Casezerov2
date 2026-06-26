@@ -40,7 +40,7 @@ Reply in 2-3 sentences. Human, realistic, emotionally consistent.`;
 
     let lieScore = null;
     if (!isAIErr(resp) && (settings.lieDetector || diff.lieDetectorForce)) {
-      const lsys = "You are a deception analyst. Return ONLY JSON: {\"score\":45} where score 0-100 = deception likelihood. 100=definitely lying. Base on evasiveness, inconsistency, deflection.";
+      const lsys = "You are a deception analyst. Return ONLY JSON: {\"score\":45} where score 0-100 = deception likelihood. Base on evasiveness, inconsistency, deflection.";
       const lraw = await callAI(`Suspect: ${suspect.name}. Guilty: ${suspect.guilty}. Mood: ${mood}. Q: "${question}". A: "${resp}"`, lsys, "lie-detect", settings);
       if (!isAIErr(lraw)) {
         const lp = safeJSON(lraw, { score: 50 });
@@ -60,25 +60,20 @@ Reply in 2-3 sentences. Human, realistic, emotionally consistent.`;
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: 16, height: "100%" }}>
-      {/* Suspect list */}
       <div>
         <SectionLabel style={{ marginBottom: 10 }}>Suspects</SectionLabel>
         {suspects.map(s => (
-          <div key={s.id} className={`portrait-card ${selSuspect?.id === s.id ? "selected" : ""} ${(interrogHist[s.id]?.length || 0) > 3 && s.guilty ? "" : ""}`}
+          <div key={s.id} className={`portrait-card ${selSuspect?.id === s.id ? "selected" : ""}`}
             style={{ marginBottom: 10 }} onClick={() => setSelSuspect(s)}>
             <div className="portrait-avatar" style={{ height: 56, fontSize: 28 }}>{s.avatar || "👤"}</div>
             <div className="portrait-body" style={{ padding: "10px 12px" }}>
               <div className="portrait-name" style={{ fontSize: 15 }}>{s.name}</div>
               <div className="portrait-role" style={{ marginBottom: 6 }}>{s.role}</div>
-              {(questionCounts[s.id] || 0) > 0 && (
-                <MoodBadge count={questionCounts[s.id] || 0} guilty={s.guilty} />
-              )}
+              {(questionCounts[s.id] || 0) > 0 && <MoodBadge count={questionCounts[s.id] || 0} guilty={s.guilty} />}
               {(interrogHist[s.id]?.length || 0) > 0 && (
-                <div style={{ marginTop: 5 }}>
+                <div style={{ marginTop: 5, display: "flex", gap: 4, flexWrap: "wrap" }}>
                   <span className="tag tag-muted" style={{ fontSize: 9 }}>{interrogHist[s.id].length} Q&A</span>
-                  {lieScores[s.id] != null && (
-                    <span className="tag tag-gold" style={{ fontSize: 9, marginLeft: 4 }}>{lieScores[s.id]}% lie</span>
-                  )}
+                  {lieScores[s.id] != null && <span className="tag tag-gold" style={{ fontSize: 9 }}>{lieScores[s.id]}% lie</span>}
                 </div>
               )}
             </div>
@@ -86,7 +81,6 @@ Reply in 2-3 sentences. Human, realistic, emotionally consistent.`;
         ))}
       </div>
 
-      {/* Chat panel */}
       <div style={{ display: "flex", flexDirection: "column" }}>
         {!selSuspect ? (
           <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: T.inkMut, fontSize: 14 }}>
@@ -94,7 +88,6 @@ Reply in 2-3 sentences. Human, realistic, emotionally consistent.`;
           </div>
         ) : (
           <>
-            {/* Suspect header */}
             <div className="card card-gold" style={{ padding: "14px 16px", marginBottom: 12 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                 <div>
@@ -112,7 +105,6 @@ Reply in 2-3 sentences. Human, realistic, emotionally consistent.`;
               )}
             </div>
 
-            {/* Chat history */}
             <div ref={chatRef} style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 10, marginBottom: 12, minHeight: 200, maxHeight: 320 }}>
               {hist.length === 0 && (
                 <div style={{ textAlign: "center", color: T.inkMut, fontSize: 13, paddingTop: 40 }}>
@@ -154,13 +146,14 @@ Reply in 2-3 sentences. Human, realistic, emotionally consistent.`;
               )}
             </div>
 
-            {/* Suggested questions */}
             {caseData.interrogationQuestions?.[selSuspect.id]?.length > 0 && (
               <div style={{ marginBottom: 10 }}>
                 <SectionLabel style={{ marginBottom: 6 }}>Suggested</SectionLabel>
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                   {caseData.interrogationQuestions[selSuspect.id].map((item, i) => (
-                    <button key={i} className="btn btn-ghost btn-sm" onClick={() => askSuspect(selSuspect, item.q)} disabled={loading || !settings.openaiKey}>
+                    <button key={i} className="btn btn-ghost btn-sm"
+                      onClick={() => askSuspect(selSuspect, item.q)}
+                      disabled={loading || !settings.openaiKey}>
                       {item.q.slice(0, 36)}…
                     </button>
                   ))}
@@ -170,13 +163,14 @@ Reply in 2-3 sentences. Human, realistic, emotionally consistent.`;
 
             {!settings.openaiKey && <div style={{ marginBottom: 10 }}><APIWarn /></div>}
 
-            {/* Input */}
             <div style={{ display: "flex", gap: 8 }}>
-              <input className="input" placeholder={settings.openaiKey ? `Ask ${selSuspect.name.split(" ")[0]} anything…` : "Add OpenAI key in Settings to interrogate"}
+              <input className="input"
+                placeholder={settings.openaiKey ? `Ask ${selSuspect.name.split(" ")[0]} anything…` : "Add OpenAI key in Settings"}
                 value={customQ} onChange={e => setCustomQ(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && customQ.trim() && !loading && settings.openaiKey && askSuspect(selSuspect, customQ)}
                 disabled={!settings.openaiKey} style={{ flex: 1 }} />
-              <button className="btn btn-gold" disabled={!customQ.trim() || loading || !settings.openaiKey}
+              <button className="btn btn-gold"
+                disabled={!customQ.trim() || loading || !settings.openaiKey}
                 onClick={() => askSuspect(selSuspect, customQ)}>
                 {loading ? <span className="spinner" /> : "Ask"}
               </button>
@@ -222,18 +216,17 @@ export function CrossExamTab({ caseData, suspects, selSuspect, setSelSuspect, cr
     const currentAlibi = dynamicAlibis[suspect.id] || suspect.alibi;
 
     const sys = `You are ${suspect.name} under cross-examination.
-Current alibi (may have shifted): "${currentAlibi}".
-The contradiction being pressed: "${examData?.contradiction || "Your alibi doesn't add up."}".
+Current alibi: "${currentAlibi}".
+Contradiction being pressed: "${examData?.contradiction || "Your alibi doesn't add up."}".
 Pressure point: "${examData?.pressure || "key evidence"}".
 Guilty: ${suspect.guilty ? "YES" : "NO"}. Round ${newRound}/${threshold}.
-${willCrack ? "BREAKING POINT — show a dramatic crack, near-confession, emotional breakdown, or devastating slip. Very tense. Very human." : "Hold firm but fracture subtly. Consider slightly adjusting your alibi to cover a gap — shift your story just enough to seem like a forgotten detail."}
+${willCrack ? "BREAKING POINT — show a dramatic crack, near-confession, emotional breakdown, or devastating slip." : "Hold firm but fracture subtly. Consider slightly shifting your alibi to cover a gap."}
 2-3 sentences. Very human, very tense.`;
 
     const resp = await callAI(`Tactic "${tactic}" pressed on: "${examData?.contradiction}"`, sys, `cross-${suspect.id}`, settings);
 
-    // Dynamic alibi update
     if (!willCrack && newRound > 1 && !isAIErr(resp)) {
-      const asys = "Extract the suspect's NEW claimed alibi from their latest response in one sentence. If unchanged return the original. Return ONLY the alibi sentence.";
+      const asys = "Extract the suspect's NEW claimed alibi in one sentence. If unchanged return the original. Return ONLY the alibi sentence.";
       const newAlibiRaw = await callAI(`Original: "${currentAlibi}". Latest: "${resp}"`, asys, "dynamic-alibi", settings);
       if (!isAIErr(newAlibiRaw) && newAlibiRaw.length > 10 && newAlibiRaw.length < 200) {
         setDynamicAlibis(p => ({ ...p, [suspect.id]: newAlibiRaw }));
@@ -249,7 +242,6 @@ ${willCrack ? "BREAKING POINT — show a dramatic crack, near-confession, emotio
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: 16 }}>
-      {/* Suspect list */}
       <div>
         <SectionLabel style={{ marginBottom: 10 }}>Suspects</SectionLabel>
         {suspects.map(s => {
@@ -272,7 +264,6 @@ ${willCrack ? "BREAKING POINT — show a dramatic crack, near-confession, emotio
         })}
       </div>
 
-      {/* Cross-exam panel */}
       <div>
         {!selSuspect ? (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 280, color: T.inkMut, fontSize: 14 }}>
@@ -285,14 +276,12 @@ ${willCrack ? "BREAKING POINT — show a dramatic crack, near-confession, emotio
               <div style={{ fontSize: 12, color: T.inkSec, marginBottom: alibiChanged ? 8 : 12 }}>
                 Round {state.round} · {state.cracked ? "CRACKED" : "Holding firm"}
               </div>
-
               {alibiChanged && (
                 <div style={{ padding: "8px 10px", background: `${T.amber}10`, border: `1px solid ${T.amber}30`, borderRadius: 4, marginBottom: 10, fontSize: 11 }}>
                   <span style={{ color: T.amber, fontWeight: 700 }}>⚡ ALIBI SHIFTED: </span>
                   <span style={{ color: T.inkSec }}>{dynamicAlibis[selSuspect.id]}</span>
                 </div>
               )}
-
               {examData && (
                 <>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
@@ -308,7 +297,6 @@ ${willCrack ? "BREAKING POINT — show a dramatic crack, near-confession, emotio
               )}
             </div>
 
-            {/* Chat */}
             <div ref={chatRef} style={{ height: 190, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
               {state.history.length === 0 && (
                 <div style={{ textAlign: "center", color: T.inkMut, fontSize: 12, paddingTop: 30 }}>
@@ -363,9 +351,7 @@ ${willCrack ? "BREAKING POINT — show a dramatic crack, near-confession, emotio
               <div className="card card-red pulse-red" style={{ padding: 16, textAlign: "center" }}>
                 <div style={{ fontSize: 32, marginBottom: 8 }}>💥</div>
                 <div className="display" style={{ fontSize: 24, color: T.red, marginBottom: 6 }}>SUSPECT CRACKED</div>
-                <p style={{ fontSize: 13, color: T.inkSec }}>
-                  The pressure broke {selSuspect.name}. Their last response may contain the truth.
-                </p>
+                <p style={{ fontSize: 13, color: T.inkSec }}>Their last response may contain the truth.</p>
               </div>
             )}
           </>
@@ -392,13 +378,13 @@ export function WitnessTab({ witnesses, witnessState, setWitnessState, player, s
   }, [witnessState, selWitness]);
 
   const TRIGGERS = [
-    { id: "general",    label: "Opening Statement", icon: "💬" },
+    { id: "general",    label: "Opening Statement",  icon: "💬" },
     { id: "suspicious", label: "Suspicious Behavior", icon: "🔍" },
-    { id: "diana",      label: "About Diana",        icon: "👤" },
-    { id: "noah",       label: "About Noah",         icon: "👤" },
-    { id: "marcus",     label: "About Marcus",       icon: "👤" },
-    { id: "camera",     label: "About Evidence",     icon: "📷" },
-    { id: "victim",     label: "About Victim",       icon: "🎯" },
+    { id: "diana",      label: "About Diana",         icon: "👤" },
+    { id: "noah",       label: "About Noah",          icon: "👤" },
+    { id: "marcus",     label: "About Marcus",        icon: "👤" },
+    { id: "camera",     label: "About Evidence",      icon: "📷" },
+    { id: "victim",     label: "About Victim",        icon: "🎯" },
   ];
 
   const callWitness = async (witness, trigger) => {
@@ -406,7 +392,6 @@ export function WitnessTab({ witnesses, witnessState, setWitnessState, player, s
     const preset = witness.statements?.find(s => s.trigger === trigger) || witness.statements?.[0];
     const existing = witnessState[witness.id] || { chatHistory: [] };
     let response;
-
     if (preset && existing.chatHistory.length < 2) {
       response = preset.text;
     } else {
@@ -416,7 +401,6 @@ Prior answers: ${existing.chatHistory.map(h => h.response).join(" | ") || "none"
 Give a natural 2-3 sentence follow-up about: ${trigger}. Stay consistent.`;
       response = await callAI(`Witness asked about: "${trigger}"`, sys, `witness-${witness.id}`, settings);
     }
-
     const entry = { trigger, response: isAIErr(response) ? `[Witness unavailable: ${response.replace("[AI_ERROR]", "")}]` : response, player: player.name };
     setWitnessState(p => ({ ...p, [witness.id]: { unlocked: true, chatHistory: [...(p[witness.id]?.chatHistory || []), entry] } }));
     if (!isAIErr(response)) await speakText(response, settings);
@@ -486,19 +470,18 @@ Reply honestly in 2-3 sentences. Stay consistent.`;
               </div>
             </div>
 
-            {/* Trigger buttons */}
             <div style={{ marginBottom: 10 }}>
               <SectionLabel style={{ marginBottom: 7 }}>Ask about…</SectionLabel>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {TRIGGERS.filter(t => selWitness.statements?.some(s => s.trigger === t.id)).map(t => (
-                  <button key={t.id} className="btn btn-teal btn-sm" onClick={() => callWitness(selWitness, t.id)} disabled={loading}>
+                  <button key={t.id} className="btn btn-teal btn-sm"
+                    onClick={() => callWitness(selWitness, t.id)} disabled={loading}>
                     {t.icon} {t.label}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Chat history */}
             <div ref={chatRef} style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8, marginBottom: 12, minHeight: 160, maxHeight: 260 }}>
               {hist.length === 0 && (
                 <div style={{ textAlign: "center", color: T.inkMut, fontSize: 12, paddingTop: 28 }}>
@@ -535,7 +518,6 @@ Reply honestly in 2-3 sentences. Stay consistent.`;
               )}
             </div>
 
-            {/* Custom question */}
             <div style={{ display: "flex", gap: 8 }}>
               <input className="input" placeholder={`Ask ${selWitness.name.split(" ")[0]} anything…`}
                 value={customQ} onChange={e => setCustomQ(e.target.value)}
