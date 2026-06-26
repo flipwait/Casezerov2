@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { T, DIFFICULTY, PLAYER_COLORS } from '../tokens';
-import { APIWarn, SectionLabel, Divider } from './UI';
+import { APIWarn, SectionLabel } from './UI';
 import { callAI, isAIErr, safeJSON } from '../hooks/useAI';
 import { CASES } from '../data/cases';
 
@@ -44,7 +44,6 @@ Theme: ${customPrompt || "Dramatic murder at a private members club"}. Be origin
       setGenErr(parsed._error || `JSON parse failed. Try again.`);
       setGen(false); return;
     }
-    // Patch missing fields
     parsed.suspects?.forEach(s => {
       s.dossier = s.dossier || { background: "", associates: "", record: "None", financials: "" };
       s.timeline = s.timeline || [];
@@ -58,8 +57,8 @@ Theme: ${customPrompt || "Dramatic murder at a private members club"}. Be origin
   };
 
   const MODES = [
-    { id: "detective",     icon: "🔍", l: "Detective Mode",    d: "Explore rooms and find evidence" },
-    { id: "interrogation", icon: "💬", l: "Interrogation Mode", d: "AI suspects, witnesses, cross-exam" },
+    { id: "detective",     icon: "🔍", l: "Detective Mode",      d: "Explore rooms and find evidence" },
+    { id: "interrogation", icon: "💬", l: "Interrogation Mode",  d: "AI suspects, witnesses, cross-exam" },
     { id: "combined",      icon: "🗂", l: "Full Investigation ★", d: "Everything — detect, interrogate, forensics, grill" },
   ];
 
@@ -72,7 +71,6 @@ Theme: ${customPrompt || "Dramatic murder at a private members club"}. Be origin
       {!settings.openaiKey && <div style={{ marginBottom: 20 }}><APIWarn /></div>}
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
-        {/* PLAYERS */}
         <div className="card" style={{ padding: 20 }}>
           <SectionLabel style={{ marginBottom: 12 }}>Detectives ({players.length}/8)</SectionLabel>
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
@@ -96,7 +94,6 @@ Theme: ${customPrompt || "Dramatic murder at a private members club"}. Be origin
           </div>
         </div>
 
-        {/* MODE */}
         <div className="card" style={{ padding: 20 }}>
           <SectionLabel style={{ marginBottom: 12 }}>Game Mode</SectionLabel>
           {MODES.map(m => (
@@ -118,7 +115,6 @@ Theme: ${customPrompt || "Dramatic murder at a private members club"}. Be origin
         </div>
       </div>
 
-      {/* DIFFICULTY */}
       <div className="card" style={{ padding: 20, marginBottom: 16 }}>
         <SectionLabel style={{ marginBottom: 12 }}>Difficulty</SectionLabel>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: 16 }}>
@@ -145,7 +141,6 @@ Theme: ${customPrompt || "Dramatic murder at a private members club"}. Be origin
         </div>
       </div>
 
-      {/* CASE SELECT */}
       <div className="card" style={{ padding: 20, marginBottom: 20 }}>
         <SectionLabel style={{ marginBottom: 12 }}>Select Case</SectionLabel>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(180px,1fr))", gap: 10, marginBottom: 14 }}>
@@ -195,13 +190,12 @@ Theme: ${customPrompt || "Dramatic murder at a private members club"}. Be origin
         ▶ BEGIN INVESTIGATION
       </button>
 
-      {/* Custom case modal */}
       {showCustom && (
         <div className="overlay" onClick={() => setShowCustom(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <h3 className="display" style={{ fontSize: 28, marginBottom: 8 }}>AI CASE GENERATOR</h3>
-            <p style={{ color: T.inkSec, fontSize: 13, marginBottom: 16 }}>Describe the theme. GPT builds the full mystery with suspects, clues, and witnesses.</p>
-            <textarea className="input" placeholder="e.g. 'Spy thriller on a 1940s Orient Express' or 'Cozy Christmas village mystery' or 'Sci-fi space station murder'"
+            <p style={{ color: T.inkSec, fontSize: 13, marginBottom: 16 }}>Describe the theme. GPT builds the full mystery.</p>
+            <textarea className="input" placeholder="e.g. 'Spy thriller on a 1940s Orient Express'"
               value={customPrompt} onChange={e => setCustomPrompt(e.target.value)} style={{ marginBottom: 14 }} />
             {genErr && <div style={{ color: T.red, fontSize: 12, marginBottom: 12, padding: "10px 12px", background: `${T.red}0A`, borderRadius: 6 }}>❌ {genErr}</div>}
             {!settings.openaiKey && <div style={{ marginBottom: 12 }}><APIWarn /></div>}
