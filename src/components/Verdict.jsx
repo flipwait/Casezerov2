@@ -3,7 +3,7 @@ import { T } from '../tokens';
 import { SuspicionMeter, SectionLabel } from './UI';
 
 export function VerdictScreen({ verdict, caseData, player, onEnd, isTutorial }) {
-  const [phase, setPhase] = useState(0); // 0=black, 1=result, 2=details visible
+  const [phase, setPhase] = useState(0);
   const [tab, setTab] = useState("result");
   const [revealKiller, setRevealKiller] = useState(false);
 
@@ -18,19 +18,19 @@ export function VerdictScreen({ verdict, caseData, player, onEnd, isTutorial }) 
 
   const bgColor = isTimer ? T.amber : correct ? T.green : T.red;
   const headerText = isTimer ? "TIME EXPIRED" : correct ? "CASE SOLVED" : verdict.permadeath ? "GAME OVER" : "WRONG ACCUSATION";
+  const emoji = isTimer ? "⌛" : correct ? "🏆" : verdict.permadeath ? "💀" : "😞";
   const subText = isTimer
     ? `The clock ran out. ${verdict.killer.name} escapes.`
     : correct
       ? `${player.name} correctly identified ${verdict.killer.name}.`
       : `${player.name} accused ${verdict.suspect?.name}. The killer was ${verdict.killer.name}.`;
-  const emoji = isTimer ? "⌛" : correct ? "🏆" : verdict.permadeath ? "💀" : "😞";
 
   return (
     <div style={{
       minHeight: "100vh",
       background: `radial-gradient(ellipse 100% 60% at 50% 0%, ${bgColor}10, transparent)`,
-      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      padding: 24,
+      display: "flex", flexDirection: "column", alignItems: "center",
+      justifyContent: "center", padding: 24,
     }}>
       <div style={{
         maxWidth: 660, width: "100%",
@@ -38,7 +38,7 @@ export function VerdictScreen({ verdict, caseData, player, onEnd, isTutorial }) 
         transform: phase >= 1 ? "none" : "translateY(30px)",
         transition: "all 0.8s cubic-bezier(0.16,1,0.3,1)",
       }}>
-        {/* Hero verdict */}
+        {/* Hero */}
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div style={{ fontSize: 72, marginBottom: 16 }}>{emoji}</div>
           <span className={`tag tag-${isTimer ? "gold" : correct ? "green" : "red"}`}
@@ -46,7 +46,10 @@ export function VerdictScreen({ verdict, caseData, player, onEnd, isTutorial }) 
             {headerText}
           </span>
           <h1 className="display" style={{ fontSize: "clamp(36px,6vw,64px)", color: T.paper, marginBottom: 10, lineHeight: 1 }}>
-            {isTimer ? "The killer escapes." : correct ? "Brilliant work, Detective." : verdict.permadeath ? "One shot. One miss." : "The real killer walks free."}
+            {isTimer ? "The killer escapes."
+              : correct ? "Brilliant work, Detective."
+              : verdict.permadeath ? "One shot. One miss."
+              : "The real killer walks free."}
           </h1>
           <p style={{ color: T.inkSec, fontSize: 15, lineHeight: 1.7 }}>{subText}</p>
 
@@ -57,7 +60,7 @@ export function VerdictScreen({ verdict, caseData, player, onEnd, isTutorial }) 
           )}
         </div>
 
-        {/* Thin line */}
+        {/* Gold line */}
         <div style={{ height: 1, background: `linear-gradient(90deg,transparent,${bgColor}44,transparent)`, marginBottom: 24 }} />
 
         {/* Tabs */}
@@ -65,18 +68,21 @@ export function VerdictScreen({ verdict, caseData, player, onEnd, isTutorial }) 
           display: "flex", gap: 6, marginBottom: 20,
           opacity: phase >= 2 ? 1 : 0, transition: "opacity 0.6s ease 0.3s",
         }}>
-          {[["result", "Result"], ["debrief", "Debrief"], ["evidence", "Evidence"], ["votes", "Votes"]].map(([id, lbl]) => (
+          {[["result","Result"],["debrief","Debrief"],["evidence","Evidence"],["votes","Votes"]].map(([id, lbl]) => (
             <button key={id} className={`btn btn-sm ${tab === id ? "btn-gold" : "btn-ghost"}`}
-              style={{ flex: 1, justifyContent: "center" }} onClick={() => setTab(id)}>{lbl}</button>
+              style={{ flex: 1, justifyContent: "center" }}
+              onClick={() => setTab(id)}>{lbl}</button>
           ))}
         </div>
 
         <div style={{ opacity: phase >= 2 ? 1 : 0, transition: "opacity 0.6s ease 0.4s" }}>
-          {/* RESULT TAB */}
+
+          {/* RESULT */}
           {tab === "result" && (
             <div>
               {!revealKiller ? (
-                <button className="btn btn-gold btn-lg" style={{ width: "100%", justifyContent: "center", marginBottom: 14 }}
+                <button className="btn btn-gold btn-lg"
+                  style={{ width: "100%", justifyContent: "center", marginBottom: 14 }}
                   onClick={() => setRevealKiller(true)}>
                   Reveal the Full Truth
                 </button>
@@ -92,14 +98,16 @@ export function VerdictScreen({ verdict, caseData, player, onEnd, isTutorial }) 
             </div>
           )}
 
-          {/* DEBRIEF TAB */}
+          {/* DEBRIEF */}
           {tab === "debrief" && (
             <div>
               <div className="card" style={{ padding: 16, marginBottom: 12 }}>
                 <SectionLabel style={{ marginBottom: 8 }}>Your Suspicion Level</SectionLabel>
                 <SuspicionMeter value={verdict.revSuspicion || 15} />
                 <div style={{ fontSize: 12, color: T.inkMut, marginTop: 8 }}>
-                  {(verdict.revSuspicion || 15) < 40 ? "You stayed clear during the reverse interrogation." : "Your alibi raised some eyebrows with the interrogator."}
+                  {(verdict.revSuspicion || 15) < 40
+                    ? "You stayed clear during the reverse interrogation."
+                    : "Your alibi raised some eyebrows with the interrogator."}
                 </div>
               </div>
               <div className="card" style={{ padding: 16 }}>
@@ -120,7 +128,7 @@ export function VerdictScreen({ verdict, caseData, player, onEnd, isTutorial }) 
             </div>
           )}
 
-          {/* EVIDENCE TAB */}
+          {/* EVIDENCE */}
           {tab === "evidence" && (
             <div>
               <SectionLabel style={{ marginBottom: 12 }}>All Clues — Full Reveal</SectionLabel>
@@ -142,7 +150,7 @@ export function VerdictScreen({ verdict, caseData, player, onEnd, isTutorial }) 
             </div>
           )}
 
-          {/* VOTES TAB */}
+          {/* VOTES */}
           {tab === "votes" && (
             <div>
               <SectionLabel style={{ marginBottom: 12 }}>Team Vote Results</SectionLabel>
@@ -172,9 +180,8 @@ export function VerdictScreen({ verdict, caseData, player, onEnd, isTutorial }) 
           display: "flex", gap: 10, marginTop: 24,
           opacity: phase >= 2 ? 1 : 0, transition: "opacity 0.6s ease 0.5s",
         }}>
-          <button className="btn btn-teal btn-lg" style={{ flex: 1, justifyContent: "center" }} onClick={() => onEnd("lobby")}>
-            ▶ Play Again
-          </button>
+          <button className="btn btn-teal btn-lg" style={{ flex: 1, justifyContent: "center" }}
+            onClick={() => onEnd("lobby")}>▶ Play Again</button>
           <button className="btn btn-ghost btn-lg" onClick={() => onEnd("home")}>Main Menu</button>
         </div>
       </div>
