@@ -23,7 +23,6 @@ export function DossierModal({ suspect, suspects, dynamicAlibis, onClose }) {
           <button className="btn btn-ghost btn-sm" onClick={onClose}>✕</button>
         </div>
 
-        {/* Suspect switcher */}
         <div style={{ display: "flex", gap: 7, marginBottom: 20, flexWrap: "wrap" }}>
           {suspects.map(s => (
             <button key={s.id} className={`btn btn-sm ${cur.id === s.id ? "btn-purple" : "btn-ghost"}`}
@@ -33,7 +32,6 @@ export function DossierModal({ suspect, suspects, dynamicAlibis, onClose }) {
           ))}
         </div>
 
-        {/* Alibi shift banner */}
         {alibiChanged && (
           <div style={{ padding: "10px 14px", background: `${T.amber}10`, border: `1px solid ${T.amber}30`, borderRadius: 6, marginBottom: 16, fontSize: 12 }}>
             <span style={{ color: T.amber, fontWeight: 700 }}>⚡ ALIBI UPDATED DURING CROSS-EXAM: </span>
@@ -116,8 +114,7 @@ export function AccuseModal({ suspects, accusation, setAccusation, crossState, o
           <div style={{ fontSize: 40, marginBottom: 10 }}>⚖</div>
           <h3 className="display" style={{ fontSize: 36, color: T.red, marginBottom: 6 }}>FINAL ACCUSATION</h3>
           <p style={{ color: T.inkSec, fontSize: 13, lineHeight: 1.7 }}>
-            One chance. Choose carefully, {player.name}.<br />
-            This is irreversible.
+            One chance. Choose carefully, {player.name}.<br />This is irreversible.
           </p>
         </div>
 
@@ -143,7 +140,8 @@ export function AccuseModal({ suspects, accusation, setAccusation, crossState, o
         </div>
 
         <div style={{ display: "flex", gap: 10 }}>
-          <button className="btn btn-red btn-lg" disabled={!accusation} onClick={onConfirm} style={{ flex: 1, justifyContent: "center" }}>
+          <button className="btn btn-red btn-lg" disabled={!accusation} onClick={onConfirm}
+            style={{ flex: 1, justifyContent: "center" }}>
             CONFIRM ACCUSATION
           </button>
           <button className="btn btn-ghost btn-lg" onClick={onClose}>Cancel</button>
@@ -167,7 +165,7 @@ export function TeamVoteModal({ players, suspects, teamVotes, setTeamVotes, onCl
           <div>
             <span className="tag tag-teal" style={{ marginBottom: 10, display: "inline-flex" }}>🗳 Team Vote</span>
             <h3 className="display" style={{ fontSize: 36, color: T.teal, marginTop: 6 }}>WHO'S THE KILLER?</h3>
-            <p style={{ fontSize: 13, color: T.inkSec, marginTop: 4 }}>Each player casts their vote. Majority rules the accusation.</p>
+            <p style={{ fontSize: 13, color: T.inkSec, marginTop: 4 }}>Each player casts their vote. Majority rules.</p>
           </div>
           <button className="btn btn-ghost btn-sm" onClick={onClose}>✕</button>
         </div>
@@ -214,12 +212,15 @@ export function TeamVoteModal({ players, suspects, teamVotes, setTeamVotes, onCl
 // ============================================================
 // REVERSE INTERROGATION MODAL
 // ============================================================
-export function ReverseModal({ caseData, player, state, setState, onSubmit, onClose, diff, settings }) {
+export function ReverseModal({ caseData, player, state, setState, onClose, diff, settings }) {
   const ri = caseData.reverseInterrogation;
   const qList = ri?.questions?.slice(0, diff.reverseQ) || [];
   const curQ = qList[state.qIdx];
   const ref = useRef(null);
-  useEffect(() => { if (ref.current) ref.current.scrollTop = ref.current.scrollHeight; }, [state.history]);
+
+  useEffect(() => {
+    if (ref.current) ref.current.scrollTop = ref.current.scrollHeight;
+  }, [state.history]);
 
   const suspColor = state.suspicion < 30 ? T.green : state.suspicion < 60 ? T.amber : state.suspicion < 80 ? T.orange : T.red;
 
@@ -242,7 +243,7 @@ Rate believability 1-10 and react. Return ONLY JSON: {"score":7,"response":"2-3 
     }
     const parsed = safeJSON(raw, { score: 5, response: "...your answer has been noted." });
     if (parsed._error || parsed._parseError) {
-      setState(s => ({ ...s, loading: false, error: `Could not parse response. Raw: ${parsed._raw?.slice(0, 60)}` }));
+      setState(s => ({ ...s, loading: false, error: `Could not parse AI response. Try again.` }));
       return;
     }
     const score = Math.min(10, Math.max(1, Number(parsed.score) || 5));
@@ -302,7 +303,10 @@ Rate believability 1-10 and react. Return ONLY JSON: {"score":7,"response":"2-3 
                 </div>
               </div>
               <div style={{ display: "flex", justifyContent: "flex-start" }}>
-                <div className="bubble" style={{ background: e.delta > 5 ? `${T.red}10` : `${T.purple}10`, border: `1px solid ${e.delta > 5 ? T.red : T.purple}28` }}>
+                <div className="bubble" style={{
+                  background: e.delta > 5 ? `${T.red}10` : `${T.purple}10`,
+                  border: `1px solid ${e.delta > 5 ? T.red : T.purple}28`
+                }}>
                   <span style={{ fontSize: 10, color: e.delta > 5 ? T.red : T.purple, display: "block", marginBottom: 3 }}>
                     Credibility: {e.score}/10 · {e.delta > 0 ? `▲ +${e.delta}% suspicion` : `▼ ${Math.abs(e.delta)}% suspicion`}
                   </span>
@@ -327,16 +331,20 @@ Rate believability 1-10 and react. Return ONLY JSON: {"score":7,"response":"2-3 
             </div>
             <div style={{ display: "flex", gap: 8 }}>
               <input className="input" placeholder="Your answer — be convincing…"
-                value={state.ans} onChange={e => setState(s => ({ ...s, ans: e.target.value }))}
+                value={state.ans}
+                onChange={e => setState(s => ({ ...s, ans: e.target.value }))}
                 onKeyDown={e => e.key === "Enter" && state.ans.trim() && handleSubmit()}
                 style={{ flex: 1 }} />
-              <button className="btn btn-purple" disabled={!state.ans.trim() || state.loading} onClick={handleSubmit}>Answer</button>
+              <button className="btn btn-purple" disabled={!state.ans.trim() || state.loading}
+                onClick={handleSubmit}>Answer</button>
             </div>
           </>
         ) : state.done ? (
           <div style={{ textAlign: "center" }}>
             <div style={{ padding: 20, background: `${suspColor}10`, border: `1px solid ${suspColor}33`, borderRadius: 8, marginBottom: 14 }}>
-              <div style={{ fontSize: 44, marginBottom: 10 }}>{state.suspicion < 30 ? "✅" : state.suspicion < 60 ? "😬" : "🚨"}</div>
+              <div style={{ fontSize: 44, marginBottom: 10 }}>
+                {state.suspicion < 30 ? "✅" : state.suspicion < 60 ? "😬" : "🚨"}
+              </div>
               <div className="display" style={{ fontSize: 32, color: suspColor, marginBottom: 6 }}>
                 FINAL SUSPICION: {state.suspicion}%
               </div>
@@ -347,7 +355,8 @@ Rate believability 1-10 and react. Return ONLY JSON: {"score":7,"response":"2-3 
                       "They nearly arrested you. Solve this case before the tables turn."}
               </p>
             </div>
-            <button className="btn btn-teal btn-lg" onClick={onClose} style={{ width: "100%", justifyContent: "center" }}>
+            <button className="btn btn-teal btn-lg" onClick={onClose}
+              style={{ width: "100%", justifyContent: "center" }}>
               ← Return to Investigation
             </button>
           </div>
@@ -363,8 +372,14 @@ Rate believability 1-10 and react. Return ONLY JSON: {"score":7,"response":"2-3 
 export function MobileModal({ foundClues, suspects, caseData, player, onClose }) {
   const [tab, setTab] = useState("clues");
   const [copied, setCopied] = useState(false);
+
   const summary = `CASEZERO — ${caseData.title}\nDetective: ${player.name}\n\nCLUES FOUND (${foundClues.length}):\n${foundClues.map(c => `• ${c.name}: ${c.desc}`).join("\n") || "None yet"}\n\nSUSPECTS:\n${suspects.map(s => `• ${s.name} (${s.role}) — ${s.alibi}`).join("\n")}`;
-  const copy = () => { navigator.clipboard.writeText(summary).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); }).catch(() => {}); };
+
+  const copy = () => {
+    navigator.clipboard.writeText(summary)
+      .then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); })
+      .catch(() => {});
+  };
 
   return (
     <div className="overlay" onClick={onClose}>
@@ -379,7 +394,8 @@ export function MobileModal({ foundClues, suspects, caseData, player, onClose })
 
         <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
           {[["clues", "🔎 Clues"], ["suspects", "👤 Suspects"], ["share", "📤 Share"]].map(([id, lbl]) => (
-            <button key={id} className={`btn btn-sm ${tab === id ? "btn-teal" : "btn-ghost"}`} onClick={() => setTab(id)}>{lbl}</button>
+            <button key={id} className={`btn btn-sm ${tab === id ? "btn-teal" : "btn-ghost"}`}
+              onClick={() => setTab(id)}>{lbl}</button>
           ))}
         </div>
 
@@ -390,7 +406,9 @@ export function MobileModal({ foundClues, suspects, caseData, player, onClose })
               <div className="display" style={{ fontSize: 18, marginTop: 4 }}>{caseData.title}</div>
               <div style={{ fontSize: 11, color: T.inkSec, marginTop: 2 }}>Det. {player.name}</div>
             </div>
-            {foundClues.length === 0 && <div style={{ textAlign: "center", color: T.inkMut, fontSize: 13, padding: 20 }}>No clues yet.</div>}
+            {foundClues.length === 0 && (
+              <div style={{ textAlign: "center", color: T.inkMut, fontSize: 13, padding: 20 }}>No clues yet.</div>
+            )}
             {foundClues.map(c => (
               <div key={c.id} style={{ background: T.void, border: `1px solid ${T.smoke}`, borderRadius: 8, padding: 12, marginBottom: 8 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
@@ -426,7 +444,8 @@ export function MobileModal({ foundClues, suspects, caseData, player, onClose })
               <div className="mono" style={{ fontSize: 10, color: T.inkSec, lineHeight: 1.7, background: T.abyss, padding: 12, borderRadius: 6, maxHeight: 180, overflowY: "auto", whiteSpace: "pre-wrap", marginBottom: 12 }}>
                 {summary}
               </div>
-              <button className={`btn ${copied ? "btn-green" : "btn-teal"}`} style={{ width: "100%", justifyContent: "center" }} onClick={copy}>
+              <button className={`btn ${copied ? "btn-green" : "btn-teal"}`}
+                style={{ width: "100%", justifyContent: "center" }} onClick={copy}>
                 {copied ? "✅ Copied!" : "📋 Copy to Clipboard"}
               </button>
             </div>
