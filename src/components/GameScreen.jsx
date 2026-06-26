@@ -103,7 +103,7 @@ export function GameScreen({ gameState, settings, onEnd, isTutorial = false }) {
       setVerdict({ correct: false, permadeath: true, suspect: s, killer: caseData.suspects.find(x => x.guilty), reason: caseData.killerReason, foundClues, revSuspicion: revState.suspicion, players, teamVotes });
       setShowAccuse(false);
       return;
-    }
+    };
     setVerdict({ correct: s.guilty, suspect: s, killer: caseData.suspects.find(x => x.guilty), reason: caseData.killerReason, foundClues, revSuspicion: revState.suspicion, players, teamVotes });
     setShowAccuse(false);
   };
