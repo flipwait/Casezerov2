@@ -98,19 +98,41 @@ export function GameScreen({ gameState, settings, onEnd, isTutorial = false }) {
   };
 
   const submitAccusation = () => {
-    const s = caseData.suspects.find(x => x.id === accusation);
-    if (diff.permadeath && !s.guilty) {
-      setVerdict({ correct: false, permadeath: true, suspect: s, killer: caseData.suspects.find(x => x.guilty), reason: caseData.killerReason, foundClues, revSuspicion: revState.suspicion, players, teamVotes });
-      setShowAccuse(false);
-      return;
-    };
-    setVerdict({ correct: s.guilty, suspect: s, killer: caseData.suspects.find(x => x.guilty), reason: caseData.killerReason, foundClues, revSuspicion: revState.suspicion, players, teamVotes });
-    setShowAccuse(false);
-  };
+  const s = caseData.suspects.find(x => x.id === accusation);
+  if (!s) return;
 
-  const handleTimerExpire = () => {
-    setVerdict({ timerExpired: true, correct: false, suspect: null, killer: caseData.suspects.find(x => x.guilty), reason: caseData.killerReason, foundClues, revSuspicion: revState.suspicion, players, teamVotes });
-  };
+  const killer = caseData.suspects.find(x => x.guilty);
+
+  if (diff.permadeath && !s.guilty) {
+    setVerdict({
+      correct: false,
+      permadeath: true,
+      suspect: s,
+      killer,
+      reason: caseData.killerReason,
+      foundClues,
+      revSuspicion: revState.suspicion,
+      players,
+      teamVotes
+    });
+
+    setShowAccuse(false);
+    return;
+  }
+
+  setVerdict({
+    correct: !!s.guilty,
+    suspect: s,
+    killer,
+    reason: caseData.killerReason,
+    foundClues,
+    revSuspicion: revState.suspicion,
+    players,
+    teamVotes
+  });
+
+  setShowAccuse(false);
+};
 
   if (verdict) return <VerdictScreen verdict={verdict} caseData={caseData} player={player} onEnd={onEnd} isTutorial={isTutorial} />;
 
