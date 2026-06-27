@@ -87,17 +87,18 @@ export function GameScreen({ gameState, settings, onEnd, isTutorial = false }) {
   };
 
   const getHint = async () => {
-    if (!diff.unlimitedHints && hintUsed) return;
-    setHintLoading(true);
-    const h = await callAI(
-      `Detective found: ${foundClues.map(c => c.name).join(",") || "nothing"}. One cryptic noir hint ≤20 words toward the next critical clue.`,
-      "You are the AI game master. Subtle, cryptic, noir-style hints only.", "hint", settings
-    );
-    setHint(isAIErr(h) ? "Look closer at what's already in front of you." : h);
-    setHintUsed(true);
-    setShowHint(true);
-    setHintLoading(false);
-  };
+  if (!diff.unlimitedHints && hintUsed) return;
+  setHintLoading(true);
+  const found = foundClues.map(c => c.name).join(",") || "nothing";
+  const pr = "Detective found: " + found + ". One cryptic noir hint 20 words or less toward the next critical clue.";
+  const sys = "You are the AI game master. Subtle, cryptic, noir-style hints only.";
+  const h = await callAI(pr, sys, "hint", settings);
+  setHint(isAIErr(h) ? "Look closer at what is already in front of you." : h);
+  setHintUsed(true);
+  setShowHint(true);
+  setHintLoading(false);
+};
+
 
   const submitAccusation = () => {
     const s = caseData.suspects.find(x => x.id === accusation);
