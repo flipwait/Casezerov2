@@ -72,13 +72,15 @@ export function GameScreen({ gameState, settings, onEnd, isTutorial = false }) {
   }, [phase]);
 
   const triggerNarrator = async (ph) => {
-    if (!settings.narratorEnabled || !settings.openaiKey) return;
-    setNarrator(n => ({ ...n, loading: true }));
-    const fc = foundClues.map(c => c.name).join(", ") || "nothing yet";
-    const sys = "You are a hardboiled noir narrator. One atmospheric sentence, 15-25 words, present tense. No quotes. No em-dashes. Evocative and tense.";
-    const txt = await callAI(`Case: ${caseData.title}. Phase: ${ph}. Clues found: ${fc}. One atmospheric line.`, sys, "narrator", settings);
-    setNarrator({ text: isAIErr(txt) ? "The investigation continues…" : txt, loading: false });
-  };
+  if (!settings.narratorEnabled || !settings.openaiKey) return;
+  setNarrator(n => ({ ...n, loading: true }));
+  const fc = foundClues.map(c => c.name).join(", ") || "nothing yet";
+  const sys = "You are a hardboiled noir narrator. One atmospheric sentence, 15-25 words, present tense. No quotes. No em-dashes. Evocative and tense.";
+  const pr = "Case: " + caseData.title + ". Phase: " + ph + ". Clues found: " + fc + ". One atmospheric line.";
+  const txt = await callAI(pr, sys, "narrator", settings);
+  setNarrator({ text: isAIErr(txt) ? "The investigation continues\u2026" : txt, loading: false });
+};
+
 
   const discoverClue = (c) => {
     setClues(prev => prev.map(x => x.id === c.id ? { ...x, found: true } : x));
